@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, act, cleanup } from '@testing-library/react';
 import { BudgetProvider, useBudget } from '../../context/BudgetContext';
 import React from 'react';
 
@@ -53,7 +53,7 @@ const TestComponent = () => {
             date: '2024-03-15',
           })
         }
-        data-testid="add-expense"
+        data-testid="add-expense-btn"
       >
         Add Expense
       </button>
@@ -67,7 +67,7 @@ const TestComponent = () => {
             isRecurring: false,
           })
         }
-        data-testid="add-income"
+        data-testid="add-income-btn"
       >
         Add Income
       </button>
@@ -79,7 +79,7 @@ const TestComponent = () => {
             endDate: '2024-12-31',
           })
         }
-        data-testid="add-goal"
+        data-testid="add-goal-btn"
       >
         Add Goal
       </button>
@@ -90,6 +90,7 @@ const TestComponent = () => {
 describe('BudgetContext', () => {
   beforeEach(() => {
     localStorage.clear();
+    cleanup(); // Clean up after each test
   });
 
   it('provides initial empty state', () => {
@@ -111,7 +112,7 @@ describe('BudgetContext', () => {
       </BudgetProvider>
     );
 
-    fireEvent.click(screen.getByTestId('add-expense'));
+    fireEvent.click(screen.getByTestId('add-expense-btn'));
     expect(screen.getByTestId('expenses-count').textContent).toBe('1');
     expect(screen.getByTestId('total-expenses').textContent).toBe('100');
   });
@@ -123,7 +124,7 @@ describe('BudgetContext', () => {
       </BudgetProvider>
     );
 
-    fireEvent.click(screen.getByTestId('add-income'));
+    fireEvent.click(screen.getByTestId('add-income-btn'));
     expect(screen.getByTestId('incomes-count').textContent).toBe('1');
     expect(screen.getByTestId('total-income').textContent).toBe('1000');
   });
@@ -135,23 +136,25 @@ describe('BudgetContext', () => {
       </BudgetProvider>
     );
 
-    fireEvent.click(screen.getByTestId('add-goal'));
+    fireEvent.click(screen.getByTestId('add-goal-btn'));
     expect(screen.getByTestId('goals-count').textContent).toBe('1');
   });
 
   it('persists data in localStorage', () => {
-    const { rerender } = render(
+    const { unmount } = render(
       <BudgetProvider>
         <TestComponent />
       </BudgetProvider>
     );
 
-    fireEvent.click(screen.getByTestId('add-expense'));
-    fireEvent.click(screen.getByTestId('add-income'));
-    fireEvent.click(screen.getByTestId('add-goal'));
+    fireEvent.click(screen.getByTestId('add-expense-btn'));
+    fireEvent.click(screen.getByTestId('add-income-btn'));
+    fireEvent.click(screen.getByTestId('add-goal-btn'));
+    
+    // Unmount and remount to simulate page reload
+    unmount();
 
-    // Rerender to simulate page reload
-    rerender(
+    render(
       <BudgetProvider>
         <TestComponent />
       </BudgetProvider>

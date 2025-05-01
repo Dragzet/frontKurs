@@ -1,10 +1,15 @@
 // Format currency amount
 export const formatCurrency = (amount: number, locale = 'ru-RU', currency = 'RUB'): string => {
-  return new Intl.NumberFormat(locale, {
+  // Use a simpler approach to avoid Unicode character issues
+  const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
     minimumFractionDigits: 2,
+    currencyDisplay: 'symbol'
   }).format(amount);
+  
+  // Normalize spaces to ensure consistent output in tests
+  return formatted.replace(/\s+/g, ' ').replace(/\u00A0/g, ' ');
 };
 
 // Format date for display

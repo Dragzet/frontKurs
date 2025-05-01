@@ -1,8 +1,13 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import Button from '../../../components/ui/Button';
 
 describe('Button', () => {
+  // Clean up after each test to avoid multiple elements
+  afterEach(() => {
+    cleanup();
+  });
+
   it('renders with default props', () => {
     render(<Button>Click me</Button>);
     const button = screen.getByRole('button');
@@ -11,16 +16,23 @@ describe('Button', () => {
   });
 
   it('applies different variants correctly', () => {
-    const { rerender } = render(<Button variant="secondary">Secondary</Button>);
+    // Test secondary variant
+    render(<Button variant="secondary">Secondary</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-gray-600');
-
-    rerender(<Button variant="success">Success</Button>);
+    cleanup();
+    
+    // Test success variant
+    render(<Button variant="success">Success</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-green-600');
-
-    rerender(<Button variant="danger">Danger</Button>);
+    cleanup();
+    
+    // Test danger variant
+    render(<Button variant="danger">Danger</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-red-600');
-
-    rerender(<Button variant="outline">Outline</Button>);
+    cleanup();
+    
+    // Test outline variant
+    render(<Button variant="outline">Outline</Button>);
     expect(screen.getByRole('button')).toHaveClass('bg-white');
   });
 
