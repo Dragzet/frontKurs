@@ -56,6 +56,16 @@ type BudgetProviderProps = {
   children: ReactNode;
 };
 
+// Simple UUID v4 generator (fallback for environments without crypto.randomUUID)
+function generateUUID() {
+  // Not cryptographically secure, but fine for local IDs
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = Math.random() * 16 | 0;
+    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 export function BudgetProvider({ children }: BudgetProviderProps) {
   const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
     const savedExpenses = localStorage.getItem('expenses');
@@ -89,7 +99,7 @@ export function BudgetProvider({ children }: BudgetProviderProps) {
   const addExpense = (expense: Omit<ExpenseItem, 'id'>) => {
     const newExpense = {
       ...expense,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
     };
     setExpenses((prev) => [...prev, newExpense]);
   };
@@ -98,7 +108,7 @@ export function BudgetProvider({ children }: BudgetProviderProps) {
   const addIncome = (income: Omit<IncomeItem, 'id'>) => {
     const newIncome = {
       ...income,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
     };
     setIncomes((prev) => [...prev, newIncome]);
   };
@@ -107,7 +117,7 @@ export function BudgetProvider({ children }: BudgetProviderProps) {
   const addGoal = (goal: Omit<BudgetGoal, 'id' | 'currentAmount'>) => {
     const newGoal = {
       ...goal,
-      id: crypto.randomUUID(),
+      id: generateUUID(),
       currentAmount: 0,
     };
     setGoals((prev) => [...prev, newGoal]);
