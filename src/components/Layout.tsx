@@ -40,7 +40,7 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <Wallet className="h-6 w-6 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">СемБюджет</span>
+            <span className="text-xl font-bold text-gray-900">SenyaMoney</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
             <Link 
@@ -142,6 +142,35 @@ const Layout = ({ children }: LayoutProps) => {
           </Link>
         </div>
       </nav>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-gray-300 py-8 mt-8">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <Wallet className="h-6 w-6 text-blue-400" />
+            <span className="text-lg font-semibold text-white">SenyaMoney</span>
+          </div>
+          <div className="text-sm text-gray-400">
+            © {new Date().getFullYear()} SenyaMoney. Все права защищены.
+          </div>
+          <div className="flex gap-4">
+            <a
+              href="https://github.com/Dragzet"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-blue-400 transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="mailto:senyasha@com"
+              className="hover:text-blue-400 transition-colors"
+            >
+              senyasha@com
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

@@ -52,7 +52,7 @@ const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Семейный бюджет</h1>
+        <h1 className="text-2xl font-bold text-gray-900">SenyaMoney</h1>
         <div className="flex space-x-3">
           <Link to="/expenses">
             <Button variant="primary" icon={<PlusCircle size={18} />}>

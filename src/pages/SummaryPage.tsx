@@ -25,7 +25,7 @@ import {
   getCategoryColor,
   calculatePercentage
 } from '../utils/formatters';
-import { DownloadCloud, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import MonthSelector from '../components/MonthSelector';
 
 const SummaryPage: React.FC = () => {
@@ -118,16 +118,6 @@ const SummaryPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold text-gray-900">Финансовый отчет</h1>
-        <Button 
-          variant="outline" 
-          icon={<DownloadCloud size={18} />}
-          onClick={() => {
-            // In a real app, this would generate a PDF or CSV export
-            alert('В реальном приложении здесь был бы экспорт данных в PDF или CSV');
-          }}
-        >
-          Экспорт отчета
-        </Button>
       </div>
 
       <MonthSelector currentMonth={currentMonth} onChange={setCurrentMonth} />

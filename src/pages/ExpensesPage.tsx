@@ -61,9 +61,9 @@ const ExpensesPage: React.FC = () => {
       return;
     }
     
-    // Add expense
+    // Add expense (используем модуль суммы)
     addExpense({
-      amount: parseFloat(amount),
+      amount: Math.abs(parseFloat(amount)),
       category,
       description,
       date,
