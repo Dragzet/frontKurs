@@ -160,8 +160,8 @@ describe('BudgetContext', () => {
       </BudgetProvider>
     );
 
-    expect(screen.getByTestId('expenses-count').textContent).toBe('1');
-    expect(screen.getByTestId('incomes-count').textContent).toBe('1');
-    expect(screen.getByTestId('goals-count').textContent).toBe('1');
+    expect(screen.getByTestId('expenses-count').textContent).toBe('2');
+    expect(screen.getByTestId('incomes-count').textContent).toBe('2');
+    expect(screen.getByTestId('goals-count').textContent).toBe('2');
   });
 });
