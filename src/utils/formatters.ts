@@ -1,6 +1,4 @@
-// Format currency amount
 export const formatCurrency = (amount: number, locale = 'ru-RU', currency = 'RUB'): string => {
-  // Use a simpler approach to avoid Unicode character issues
   const formatted = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
@@ -8,11 +6,9 @@ export const formatCurrency = (amount: number, locale = 'ru-RU', currency = 'RUB
     currencyDisplay: 'symbol'
   }).format(amount);
   
-  // Normalize spaces to ensure consistent output in tests
   return formatted.replace(/\s+/g, ' ').replace(/\u00A0/g, ' ');
 };
 
-// Format date for display
 export const formatDate = (dateString: string, locale = 'ru-RU'): string => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat(locale, {
@@ -22,30 +18,25 @@ export const formatDate = (dateString: string, locale = 'ru-RU'): string => {
   }).format(date);
 };
 
-// Format date for input fields (YYYY-MM-DD)
 export const formatDateForInput = (date = new Date()): string => {
   return date.toISOString().split('T')[0];
 };
 
-// Get current month and year (YYYY-MM)
 export const getCurrentMonth = (): string => {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 };
 
-// Get month name from date string
 export const getMonthName = (dateString: string, locale = 'ru-RU'): string => {
   const date = new Date(dateString);
   return new Intl.DateTimeFormat(locale, { month: 'long' }).format(date);
 };
 
-// Calculate percentage
 export const calculatePercentage = (value: number, total: number): number => {
   if (total === 0) return 0;
   return Math.round((value / total) * 100);
 };
 
-// Generate random color for charts
 export const generateRandomColor = (): string => {
   const letters = '0123456789ABCDEF';
   let color = '#';
@@ -55,27 +46,23 @@ export const generateRandomColor = (): string => {
   return color;
 };
 
-// Generate consistent colors for categories
 export const getCategoryColor = (category: string): string => {
-  // Predefined colors for common categories
   const colorMap: Record<string, string> = {
-    'Продукты': '#10B981', // Green
-    'Транспорт': '#3B82F6', // Blue
-    'Жилье': '#8B5CF6', // Purple
-    'Развлечения': '#F59E0B', // Yellow
-    'Здоровье': '#EF4444', // Red
-    'Образование': '#6366F1', // Indigo
-    'Одежда': '#EC4899', // Pink
-    'Рестораны': '#F97316', // Orange
-    'Путешествия': '#14B8A6', // Teal
-    'Другое': '#6B7280', // Gray
+    'Продукты': '#10B981',
+    'Транспорт': '#3B82F6',
+    'Жилье': '#8B5CF6',
+    'Развлечения': '#F59E0B',
+    'Здоровье': '#EF4444',
+    'Образование': '#6366F1',
+    'Одежда': '#EC4899',
+    'Рестораны': '#F97316',
+    'Путешествия': '#14B8A6',
+    'Другое': '#6B7280',
   };
 
-  // Return the predefined color or generate a consistent one
   return colorMap[category] || `hsl(${Math.abs(hashCode(category) % 360)}, 70%, 50%)`;
 };
 
-// Simple hash function to generate consistent colors
 function hashCode(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -84,7 +71,6 @@ function hashCode(str: string): number {
   return hash;
 }
 
-// Get expense categories
 export const getExpenseCategories = (): string[] => {
   return [
     'Продукты',
@@ -100,7 +86,6 @@ export const getExpenseCategories = (): string[] => {
   ];
 };
 
-// Get income sources
 export const getIncomeSources = (): string[] => {
   return [
     'Зарплата',

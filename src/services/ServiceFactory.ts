@@ -6,9 +6,6 @@ import { IncomeService } from './IncomeService';
 import { GoalService } from './GoalService';
 import { storageService } from './storage';
 
-/**
- * Factory for creating service instances
- */
 export class ServiceFactory {
   private static expenseService: IExpenseService;
   private static incomeService: IIncomeService;

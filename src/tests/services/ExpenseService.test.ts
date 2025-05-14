@@ -3,7 +3,6 @@ import { ExpenseService } from '../../services/ExpenseService';
 import { IStorageService } from '../../services/storage';
 import { IExpense } from '../../types/models';
 
-// Mock storage service
 const mockStorage: IStorageService = {
   get: vi.fn(),
   set: vi.fn(),
@@ -21,7 +20,6 @@ describe('ExpenseService', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    // Mock storage to return empty array by default
     (mockStorage.get as any).mockReturnValue([]);
     service = new ExpenseService(mockStorage);
   });
@@ -29,15 +27,12 @@ describe('ExpenseService', () => {
   it('should add an expense', () => {
     const expense = service.add(testExpense);
     
-    // Verify expense is created with ID
     expect(expense.id).toBeDefined();
     expect(expense.amount).toBe(100);
     expect(expense.category).toBe('Test');
     
-    // Verify storage was updated
     expect(mockStorage.set).toHaveBeenCalledTimes(1);
     
-    // Verify getAll returns the added expense
     const all = service.getAll();
     expect(all.length).toBe(1);
     expect(all[0].id).toBe(expense.id);
@@ -97,7 +92,6 @@ describe('ExpenseService', () => {
     
     (mockStorage.get as any).mockReturnValue(savedExpenses);
     
-    // Create a new service instance that should load from storage
     const newService = new ExpenseService(mockStorage);
     
     expect(newService.getAll().length).toBe(1);

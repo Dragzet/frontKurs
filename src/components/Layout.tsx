@@ -35,7 +35,6 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Header */}
       <header className="bg-white shadow-sm py-4 px-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
@@ -71,9 +70,7 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </header>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col md:flex-row">
-        {/* Sidebar (mobile: bottom nav) */}
         <div className="md:w-64 md:flex-shrink-0 md:border-r border-gray-200 bg-white md:h-auto">
           <div className="md:py-8 md:px-6 hidden md:block">
             <nav className="flex flex-col gap-2">
@@ -111,13 +108,11 @@ const Layout = ({ children }: LayoutProps) => {
           </div>
         </div>
 
-        {/* Page content */}
         <main className="flex-1 p-6">
           <div className="max-w-5xl mx-auto">{children}</div>
         </main>
       </div>
 
-      {/* Mobile bottom navigation */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 px-4">
         <div className="flex justify-between">
           <Link to="/" className="flex flex-col items-center p-2">
@@ -143,7 +138,6 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       </nav>
 
-      {/* Footer */}
       <footer className="bg-gray-900 text-gray-300 py-8 mt-8">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">

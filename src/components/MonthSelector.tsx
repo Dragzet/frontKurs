@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getMonthName } from '../utils/formatters';
 
 type MonthSelectorProps = {
-  currentMonth: string; // Format: YYYY-MM
+  currentMonth: string;
   onChange: (month: string) => void;
 };
 

@@ -1,8 +1,5 @@
 import { IExpense, ExpenseCreateDTO, IIncome, IncomeCreateDTO, IGoal, GoalCreateDTO } from '../types/models';
 
-/**
- * Interface for expense service
- */
 export interface IExpenseService {
   getAll(): IExpense[];
   getByPeriod(period: string): IExpense[];
@@ -13,9 +10,6 @@ export interface IExpenseService {
   getByCategory(period?: string): Record<string, number>;
 }
 
-/**
- * Interface for income service
- */
 export interface IIncomeService {
   getAll(): IIncome[];
   getByPeriod(period: string): IIncome[];
@@ -25,9 +19,6 @@ export interface IIncomeService {
   getTotalByPeriod(period?: string): number;
 }
 
-/**
- * Interface for goal service
- */
 export interface IGoalService {
   getAll(): IGoal[];
   getById(id: string): IGoal | undefined;

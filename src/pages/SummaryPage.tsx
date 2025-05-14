@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   BarChart,
   Bar,
@@ -14,93 +14,178 @@ import {
   LineChart,
   Line,
 } from 'recharts';
-import { useBudget } from '../context/BudgetContext';
+import { Calendar, TrendingUp, TrendingDown } from 'lucide-react';
+import { MonthBasePage, MonthPageState } from './BasePage';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Select from '../components/ui/Select';
+import MonthSelector from '../components/MonthSelector';
+import { useBudget } from '../context/BudgetContext';
 import { 
   formatCurrency, 
-  getCurrentMonth, 
   getMonthName,
   getCategoryColor,
   calculatePercentage
 } from '../utils/formatters';
-import { Calendar, TrendingUp, TrendingDown } from 'lucide-react';
-import MonthSelector from '../components/MonthSelector';
+import { IExpense, IIncome } from '../types/models';
 
-const SummaryPage: React.FC = () => {
-  const [currentMonth, setCurrentMonth] = useState(getCurrentMonth());
-  const { expenses, incomes, getTotalExpenses, getTotalIncome, getExpensesByCategory } = useBudget();
-  
-  const [compareMonth, setCompareMonth] = useState('');
-  const [chartType, setChartType] = useState<'pie' | 'bar'>('pie');
+/**
+ * Props for the SummaryPageClass component
+ */
+interface SummaryPageProps {
+  expenses: IExpense[];
+  incomes: IIncome[];
+  getTotalExpenses: (period?: string) => number;
+  getTotalIncome: (period?: string) => number;
+  getExpensesByCategory: (period?: string) => Record<string, number>;
+}
 
-  // Generate last 6 months for comparison dropdown
-  const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
-    const date = new Date();
-    date.setMonth(date.getMonth() - i);
+/**
+ * State for the SummaryPageClass component
+ */
+interface SummaryPageState extends MonthPageState {
+  compareMonth: string;
+  chartType: 'pie' | 'bar';
+}
+
+/**
+ * SummaryPage implemented as a class component
+ */
+class SummaryPageClass extends MonthBasePage<SummaryPageProps, SummaryPageState> {
+  /**
+   * Get initial state
+   */
+  protected getInitialState(): Partial<SummaryPageState> {
     return {
-      value: `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`,
-      label: `${getMonthName(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`)} ${date.getFullYear()}`,
+      compareMonth: '',
+      chartType: 'pie'
     };
-  });
-
-  // Current month stats
-  const totalExpenses = getTotalExpenses(currentMonth);
-  const totalIncome = getTotalIncome(currentMonth);
-  const balance = totalIncome - totalExpenses;
-  const savingsRate = totalIncome > 0 ? calculatePercentage(balance, totalIncome) : 0;
+  }
   
-  // Expense categories data for current month
-  const expensesByCategory = getExpensesByCategory(currentMonth);
-  const expensesByCategoryData = Object.entries(expensesByCategory)
-    .map(([name, value]) => ({
-      name,
-      value,
-    }))
-    .sort((a, b) => b.value - a.value);
-
-  // Compare data if a comparison month is selected
-  const compareExpenses = compareMonth ? getTotalExpenses(compareMonth) : 0;
-  const compareIncome = compareMonth ? getTotalIncome(compareMonth) : 0;
-  const compareBalance = compareIncome - compareExpenses;
+  /**
+   * Get the page title
+   */
+  protected getPageTitle(): string {
+    return 'Финансовый отчет';
+  }
   
-  // Prepare comparison data for the chart
-  const comparisonData = [
-    {
-      name: 'Доходы',
-      current: totalIncome,
-      compare: compareMonth ? compareIncome : 0,
-    },
-    {
-      name: 'Расходы',
-      current: totalExpenses,
-      compare: compareMonth ? compareExpenses : 0,
-    },
-    {
-      name: 'Баланс',
-      current: balance,
-      compare: compareMonth ? compareBalance : 0,
-    },
-  ];
-
-  // Generate monthly data for the last 6 months
-  const last6MonthsData = lastSixMonths.map(month => {
-    const monthExpenses = getTotalExpenses(month.value);
-    const monthIncome = getTotalIncome(month.value);
+  /**
+   * Get last six months options for comparison dropdown
+   */
+  private getLastSixMonths(): Array<{ value: string, label: string }> {
+    return Array.from({ length: 6 }, (_, i) => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const value = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      return {
+        value,
+        label: `${getMonthName(`${value}-01`)} ${date.getFullYear()}`,
+      };
+    });
+  }
+  
+  /**
+   * Generate monthly data for the last 6 months
+   */
+  private getLastSixMonthsData(): Array<{
+    name: string;
+    expenses: number;
+    income: number;
+    balance: number;
+  }> {
+    const { getTotalExpenses, getTotalIncome } = this.props;
+    const lastSixMonths = this.getLastSixMonths();
     
-    return {
-      name: month.label.split(' ')[0], // Just get the month name
-      expenses: monthExpenses,
-      income: monthIncome,
-      balance: monthIncome - monthExpenses,
-    };
-  }).reverse(); // So it shows chronologically from left to right
-
-  // Custom tooltip for pie chart
-  const CustomTooltip = ({ active, payload }: any) => {
+    return lastSixMonths.map(month => {
+      const monthExpenses = getTotalExpenses(month.value);
+      const monthIncome = getTotalIncome(month.value);
+      
+      return {
+        name: month.label.split(' ')[0], // Just get the month name
+        expenses: monthExpenses,
+        income: monthIncome,
+        balance: monthIncome - monthExpenses,
+      };
+    }).reverse(); // So it shows chronologically from left to right
+  }
+  
+  /**
+   * Get current month statistics
+   */
+  private getCurrentMonthStats() {
+    const { getTotalExpenses, getTotalIncome } = this.props;
+    const { currentMonth } = this.state;
+    
+    const totalExpenses = getTotalExpenses(currentMonth);
+    const totalIncome = getTotalIncome(currentMonth);
+    const balance = totalIncome - totalExpenses;
+    const savingsRate = totalIncome > 0 ? calculatePercentage(balance, totalIncome) : 0;
+    
+    return { totalExpenses, totalIncome, balance, savingsRate };
+  }
+  
+  /**
+   * Get expense categories data for charts
+   */
+  private getExpensesByCategoryData(): Array<{ name: string; value: number }> {
+    const { getExpensesByCategory } = this.props;
+    const { currentMonth } = this.state;
+    
+    const expensesByCategory = getExpensesByCategory(currentMonth);
+    
+    return Object.entries(expensesByCategory)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }
+  
+  /**
+   * Get comparison data for charts
+   */
+  private getComparisonData(): Array<{
+    name: string;
+    current: number;
+    compare: number;
+  }> {
+    const { getTotalExpenses, getTotalIncome } = this.props;
+    const { currentMonth, compareMonth } = this.state;
+    
+    // Current month stats
+    const totalExpenses = getTotalExpenses(currentMonth);
+    const totalIncome = getTotalIncome(currentMonth);
+    const balance = totalIncome - totalExpenses;
+    
+    // Compare month stats
+    const compareExpenses = compareMonth ? getTotalExpenses(compareMonth) : 0;
+    const compareIncome = compareMonth ? getTotalIncome(compareMonth) : 0;
+    const compareBalance = compareIncome - compareExpenses;
+    
+    return [
+      {
+        name: 'Доходы',
+        current: totalIncome,
+        compare: compareMonth ? compareIncome : 0,
+      },
+      {
+        name: 'Расходы',
+        current: totalExpenses,
+        compare: compareMonth ? compareExpenses : 0,
+      },
+      {
+        name: 'Баланс',
+        current: balance,
+        compare: compareMonth ? compareBalance : 0,
+      },
+    ];
+  }
+  
+  /**
+   * Custom tooltip component for pie chart
+   */
+  private CustomTooltip = ({ active, payload }: any): React.ReactNode => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const { totalExpenses } = this.getCurrentMonthStats();
+      
       return (
         <div className="bg-white p-3 border border-gray-200 shadow-md rounded-md">
           <p className="font-medium">{data.name}</p>
@@ -113,15 +198,28 @@ const SummaryPage: React.FC = () => {
     }
     return null;
   };
-
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-gray-900">Финансовый отчет</h1>
-      </div>
-
-      <MonthSelector currentMonth={currentMonth} onChange={setCurrentMonth} />
-      
+  
+  /**
+   * Toggle chart type
+   */
+  private toggleChartType = (type: 'pie' | 'bar'): void => {
+    this.setState({ chartType: type });
+  };
+  
+  /**
+   * Handle compare month change
+   */
+  private handleCompareMonthChange = (month: string): void => {
+    this.setState({ compareMonth: month });
+  };
+  
+  /**
+   * Render financial summary cards
+   */
+  private renderFinancialSummary(): React.ReactNode {
+    const { totalExpenses, totalIncome, balance, savingsRate } = this.getCurrentMonthStats();
+    
+    return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="transition-transform duration-300 hover:-translate-y-1">
           <div className="flex items-center justify-between">
@@ -168,123 +266,151 @@ const SummaryPage: React.FC = () => {
           </div>
         </Card>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Расходы по категориям">
-          <div className="mb-4 flex flex-wrap justify-between items-center">
-            <div className="text-sm text-gray-500">
-              {expensesByCategoryData.length} {expensesByCategoryData.length === 1 ? 'категория' : 
-                expensesByCategoryData.length < 5 ? 'категории' : 'категорий'}
-            </div>
-            <div className="flex space-x-2">
-              <Button 
-                variant={chartType === 'pie' ? 'primary' : 'outline'} 
-                size="sm"
-                onClick={() => setChartType('pie')}
-              >
-                Круговая
-              </Button>
-              <Button 
-                variant={chartType === 'bar' ? 'primary' : 'outline'} 
-                size="sm"
-                onClick={() => setChartType('bar')}
-              >
-                Столбчатая
-              </Button>
-            </div>
+    );
+  }
+  
+  /**
+   * Render expenses by category chart
+   */
+  private renderExpensesByCategoryChart(): React.ReactNode {
+    const { chartType } = this.state;
+    const expensesByCategoryData = this.getExpensesByCategoryData();
+    
+    return (
+      <Card title="Расходы по категориям">
+        <div className="mb-4 flex flex-wrap justify-between items-center">
+          <div className="text-sm text-gray-500">
+            {expensesByCategoryData.length} {expensesByCategoryData.length === 1 ? 'категория' : 
+              expensesByCategoryData.length < 5 ? 'категории' : 'категорий'}
           </div>
-          
-          <div className="h-64">
-            {expensesByCategoryData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                {chartType === 'pie' ? (
-                  <PieChart>
-                    <Pie
-                      data={expensesByCategoryData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {expensesByCategoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={getCategoryColor(entry.name)} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                  </PieChart>
-                ) : (
-                  <BarChart
+          <div className="flex space-x-2">
+            <Button 
+              variant={chartType === 'pie' ? 'primary' : 'outline'} 
+              size="sm"
+              onClick={() => this.toggleChartType('pie')}
+            >
+              Круговая
+            </Button>
+            <Button 
+              variant={chartType === 'bar' ? 'primary' : 'outline'} 
+              size="sm"
+              onClick={() => this.toggleChartType('bar')}
+            >
+              Столбчатая
+            </Button>
+          </div>
+        </div>
+        
+        <div className="h-64">
+          {expensesByCategoryData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              {chartType === 'pie' ? (
+                <PieChart>
+                  <Pie
                     data={expensesByCategoryData}
-                    layout="vertical"
-                    margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis type="number" tickFormatter={(value) => formatCurrency(value)} />
-                    <YAxis dataKey="name" type="category" width={100} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                    <Bar dataKey="value" fill="#3B82F6" />
-                  </BarChart>
-                )}
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center">
-                <p className="text-gray-500">Нет расходов за выбранный период</p>
-              </div>
-            )}
-          </div>
-        </Card>
-
-        <Card title="Сравнение по месяцам">
-          <div className="mb-4">
-            <Select
-              options={[
-                { value: '', label: 'Выберите месяц для сравнения' },
-                ...lastSixMonths.filter(month => month.value !== currentMonth)
-              ]}
-              value={compareMonth}
-              onChange={setCompareMonth}
-              fullWidth
-            />
-          </div>
-          
-          <div className="h-64">
-            {compareMonth ? (
-              <ResponsiveContainer width="100%" height="100%">
+                    {expensesByCategoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={getCategoryColor(entry.name)} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={this.CustomTooltip} />
+                  <Legend />
+                </PieChart>
+              ) : (
                 <BarChart
-                  data={comparisonData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                  data={expensesByCategoryData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 50, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis tickFormatter={(value) => `${formatCurrency(value)}`} />
+                  <XAxis type="number" tickFormatter={(value) => formatCurrency(value)} />
+                  <YAxis dataKey="name" type="category" width={100} />
                   <Tooltip formatter={(value: number) => formatCurrency(value)} />
-                  <Legend />
-                  <Bar
-                    name={`${getMonthName(`${currentMonth}-01`)}`}
-                    dataKey="current"
-                    fill="#3B82F6"
-                  />
-                  <Bar
-                    name={`${getMonthName(`${compareMonth}-01`)}`}
-                    dataKey="compare"
-                    fill="#10B981"
-                  />
+                  <Bar dataKey="value" fill="#3B82F6" />
                 </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center">
-                <Calendar className="h-12 w-12 text-gray-300 mb-4" />
-                <p className="text-gray-500">Выберите месяц для сравнения</p>
-              </div>
-            )}
-          </div>
-        </Card>
-      </div>
-      
+              )}
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex items-center justify-center">
+              <p className="text-gray-500">Нет расходов за выбранный период</p>
+            </div>
+          )}
+        </div>
+      </Card>
+    );
+  }
+  
+  /**
+   * Render comparison chart
+   */
+  private renderComparisonChart(): React.ReactNode {
+    const { currentMonth, compareMonth } = this.state;
+    const lastSixMonths = this.getLastSixMonths();
+    const comparisonData = this.getComparisonData();
+    
+    return (
+      <Card title="Сравнение по месяцам">
+        <div className="mb-4">
+          <Select
+            options={[
+              { value: '', label: 'Выберите месяц для сравнения' },
+              ...lastSixMonths.filter(month => month.value !== currentMonth)
+            ]}
+            value={compareMonth}
+            onChange={this.handleCompareMonthChange}
+            fullWidth
+          />
+        </div>
+        
+        <div className="h-64">
+          {compareMonth ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={comparisonData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis tickFormatter={(value) => `${formatCurrency(value)}`} />
+                <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                <Legend />
+                <Bar
+                  name={`${getMonthName(`${currentMonth}-01`)}`}
+                  dataKey="current"
+                  fill="#3B82F6"
+                />
+                <Bar
+                  name={`${getMonthName(`${compareMonth}-01`)}`}
+                  dataKey="compare"
+                  fill="#10B981"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center">
+              <Calendar className="h-12 w-12 text-gray-300 mb-4" />
+              <p className="text-gray-500">Выберите месяц для сравнения</p>
+            </div>
+          )}
+        </div>
+      </Card>
+    );
+  }
+  
+  /**
+   * Render 6-month trend chart
+   */
+  private renderTrendChart(): React.ReactNode {
+    const last6MonthsData = this.getLastSixMonthsData();
+    
+    return (
       <Card title="Динамика за 6 месяцев">
         <div className="h-80">
           {last6MonthsData.length > 0 ? (
@@ -329,7 +455,56 @@ const SummaryPage: React.FC = () => {
           )}
         </div>
       </Card>
-    </div>
+    );
+  }
+  
+  /**
+   * Render page content
+   */
+  protected renderContent(): React.ReactNode {
+    return (
+      <>
+        <MonthSelector
+          currentMonth={this.state.currentMonth}
+          onChange={this.handleMonthChange}
+        />
+        
+        {/* Financial Summary */}
+        {this.renderFinancialSummary()}
+        
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {this.renderExpensesByCategoryChart()}
+          {this.renderComparisonChart()}
+        </div>
+        
+        {/* Trend Chart */}
+        {this.renderTrendChart()}
+      </>
+    );
+  }
+}
+
+/**
+ * Functional wrapper for the class component to use hooks
+ */
+const SummaryPage: React.FC = () => {
+  const { 
+    expenses, 
+    incomes, 
+    getTotalExpenses, 
+    getTotalIncome,
+    getExpensesByCategory
+  } = useBudget();
+
+  return (
+    <SummaryPageClass
+      expenses={expenses}
+      incomes={incomes}
+      getTotalExpenses={getTotalExpenses}
+      getTotalIncome={getTotalIncome}
+      getExpensesByCategory={getExpensesByCategory}
+    />
   );
 };
 

@@ -36,69 +36,57 @@ type BudgetProviderProps = {
 };
 
 export function BudgetProvider({ children }: BudgetProviderProps) {
-  // Get service instances
   const expenseService: IExpenseService = ServiceFactory.getExpenseService();
   const incomeService: IIncomeService = ServiceFactory.getIncomeService();
   const goalService: IGoalService = ServiceFactory.getGoalService();
   
-  // Initialize state from services
   const [expenses, setExpenses] = useState<IExpense[]>(expenseService.getAll());
   const [incomes, setIncomes] = useState<IIncome[]>(incomeService.getAll());
   const [goals, setGoals] = useState<IGoal[]>(goalService.getAll());
   
-  // Add a new expense
   const addExpense = (expenseData: ExpenseCreateDTO) => {
     expenseService.add(expenseData);
     setExpenses(expenseService.getAll());
   };
   
-  // Add a new income
   const addIncome = (incomeData: IncomeCreateDTO) => {
     incomeService.add(incomeData);
     setIncomes(incomeService.getAll());
   };
   
-  // Add a new goal
   const addGoal = (goalData: GoalCreateDTO) => {
     goalService.add(goalData);
     setGoals(goalService.getAll());
   };
   
-  // Update goal progress
   const updateGoalProgress = (id: string, amount: number) => {
     goalService.updateProgress(id, amount);
     setGoals(goalService.getAll());
   };
   
-  // Remove expense
   const removeExpense = (id: string) => {
     expenseService.remove(id);
     setExpenses(expenseService.getAll());
   };
   
-  // Remove income
   const removeIncome = (id: string) => {
     incomeService.remove(id);
     setIncomes(incomeService.getAll());
   };
   
-  // Remove goal
   const removeGoal = (id: string) => {
     goalService.remove(id);
     setGoals(goalService.getAll());
   };
   
-  // Calculate total expenses for a period
   const getTotalExpenses = (period?: string): number => {
     return expenseService.getTotalByPeriod(period);
   };
   
-  // Calculate total income for a period
   const getTotalIncome = (period?: string): number => {
     return incomeService.getTotalByPeriod(period);
   };
   
-  // Get expenses grouped by category
   const getExpensesByCategory = (period?: string): Record<string, number> => {
     return expenseService.getByCategory(period);
   };
@@ -122,5 +110,4 @@ export function BudgetProvider({ children }: BudgetProviderProps) {
   return <BudgetContext.Provider value={value}>{children}</BudgetContext.Provider>;
 }
 
-// Export expense and income types for backward compatibility
 export type { IExpense as ExpenseItem, IIncome as IncomeItem, IGoal as BudgetGoal };

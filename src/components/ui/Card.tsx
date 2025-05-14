@@ -4,7 +4,7 @@ type CardProps = {
   children: React.ReactNode;
   title?: string;
   className?: string;
-  'data-testid'?: string; // Add data-testid to props
+  'data-testid'?: string;
 };
 
 const Card = ({ children, title, className = '', 'data-testid': testId }: CardProps) => {

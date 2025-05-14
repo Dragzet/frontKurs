@@ -16,7 +16,6 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>
 
 const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, options, error, fullWidth = false, onChange, className = '', ...props }, ref) => {
-    // Base select classes
     const selectClasses = `
       appearance-none
       px-4 py-2 
@@ -32,7 +31,6 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       ${className}
     `;
 
-    // Width class
     const widthClass = fullWidth ? 'w-full' : '';
 
     const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {

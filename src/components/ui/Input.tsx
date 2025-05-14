@@ -9,7 +9,6 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, fullWidth = false, icon, className = '', ...props }, ref) => {
-    // Base input classes
     const inputClasses = `
       px-4 py-2 
       border border-gray-300 
@@ -24,7 +23,6 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
       ${className}
     `;
 
-    // Width class
     const widthClass = fullWidth ? 'w-full' : '';
 
     return (
